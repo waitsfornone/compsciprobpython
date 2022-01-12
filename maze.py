@@ -4,7 +4,7 @@ import random
 from math import sqrt
 
 from generic_search import node_to_path
-from generic_search import dfs, node_to_path, Node, bfs
+from generic_search import dfs, node_to_path, Node, bfs, astar
 
 
 class Cell(str, Enum):
@@ -80,6 +80,22 @@ class Maze:
         self._grid[self.goal.row][self.goal.column] = Cell.GOAL
 
 
+def euclidean_distance(goal: MazeLocation) -> Callable[[MazeLocation], float]:
+    def distance(ml: MazeLocation) -> float:
+        xdist: int = ml.column - goal.column
+        ydist: int = mlrow - goal.row
+        return sqrt((xdist * xdist) + (ydist * ydist))
+    return distance
+
+
+def manhatten_distance(goal: MazeLocation) -> Callable[[MazeLocation], float]:
+    def distance(ml: MazeLocation) -> float:
+        xdist: int = abs(ml.column - goal.column)
+        ydist: int = abs(ml.row - goal.row)
+        return (xdist + ydist)
+    return distance
+
+
 if __name__ == "__main__":
     maze: Maze = Maze()
     print(maze)
@@ -89,6 +105,7 @@ if __name__ == "__main__":
     else:
         dfs_path: List[MazeLocation] = node_to_path(dfs_solution)
         maze.mark(dfs_path)
+        print("DFS Path")
         print(maze)
         maze.clear(dfs_path)
     bfs_solution: Optional[Node[MazeLocation]] = bfs(maze.start, maze.goal_test, maze.successors)
@@ -97,5 +114,15 @@ if __name__ == "__main__":
     else:
         bfs_path: List[MazeLocation] = node_to_path(bfs_solution)
         maze.mark(bfs_path)
+        print("BFS Path")
         print(maze)
         maze.clear(bfs_path)
+    distance: Callable[[MazeLocation], float] = manhatten_distance(maze.goal)
+    astar_solution: Optional[Node[MazeLocation]] = astar(maze.start, maze.goal_test, maze.successors, distance)
+    if astar_solution is None:
+        print("No solution found usin A*!")
+    else:
+        astar_path: List[MazeLocation] = node_to_path(astar_solution)
+        maze.mark(astar_path)
+        print("A* Path")
+        print(maze)
