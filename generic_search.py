@@ -25,15 +25,15 @@ def linear_contains(iterable: Iterable[T], key: T) -> bool:
     return False
 
 
-c = TypeVar("C", bound="Comparable")
+C = TypeVar("C", bound="Comparable")
 
 
 class Comparable(Protocol):
     def __eq__(self, other: Any) -> bool:
-        ...
+        return self == other
     
     def __lt__(self: C, other: C) -> bool:
-        ...
+        return self < other and self != other
 
     def __gt__(self: C, other: C) -> bool:
         return (not self < other) and self != other
